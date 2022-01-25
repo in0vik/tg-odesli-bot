@@ -26,38 +26,38 @@ class PlatformABC(ABC):
         PLATFORMS[cls.key] = cls()
 
 
-class DeezerPlatform(PlatformABC):
-    """Deezer platform."""
+# class DeezerPlatform(PlatformABC):
+#     """Deezer platform."""
 
-    key = 'deezer'
-    url_re = (
-        r'(https?://([a-zA-Z\d-]+\.)*deezer\.com(/\w\w)?/'
-        r'(album|track)/[^\s.,]*)'
-        r'|(https?://deezer\.page\.link/[^\s.,]*)'
-    )
-    name = 'Deezer'
-    order = 0
-
-
-class SoundCloudPlatform(PlatformABC):
-    """SoundCloud platform."""
-
-    key = 'soundcloud'
-    url_re = r'https?://([a-zA-Z\d-]+\.)*soundcloud\.com/[^\s.,]*'
-    name = 'SoundCloud'
-    order = 1
+#     key = 'deezer'
+#     url_re = (
+#         r'(https?://([a-zA-Z\d-]+\.)*deezer\.com(/\w\w)?/'
+#         r'(album|track)/[^\s.,]*)'
+#         r'|(https?://deezer\.page\.link/[^\s.,]*)'
+#     )
+#     name = 'Deezer'
+#     order = 0
 
 
-class YandexMusicPlatform(PlatformABC):
-    """Yandex Music platform."""
+# class SoundCloudPlatform(PlatformABC):
+#     """SoundCloud platform."""
 
-    key = 'yandex'
-    url_re = (
-        r'https?://([a-zA-Z\d-]+\.)*music\.yandex\.(com|ru|by)/(album|track)/'
-        r'[^\s.,]*'
-    )
-    name = 'Yandex Music'
-    order = 2
+#     key = 'soundcloud'
+#     url_re = r'https?://([a-zA-Z\d-]+\.)*soundcloud\.com/[^\s.,]*'
+#     name = 'SoundCloud'
+#     order = 1
+
+
+# class YandexMusicPlatform(PlatformABC):
+#     """Yandex Music platform."""
+
+#     key = 'yandex'
+#     url_re = (
+#         r'https?://([a-zA-Z\d-]+\.)*music\.yandex\.(com|ru|by)/(album|track)/'
+#         r'[^\s.,]*'
+#     )
+#     name = 'Yandex Music'
+#     order = 2
 
 
 class SpotifyPlatform(PlatformABC):
@@ -104,12 +104,12 @@ class AppleMusicPlatform(PlatformABC):
     order = 6
 
 
-class TidalPlatform(PlatformABC):
-    """Tidal platform."""
+# class TidalPlatform(PlatformABC):
+#     """Tidal platform."""
 
-    key = 'tidal'
-    url_re = (
-        r'https?://(www\.|listen\.)?tidal\.com(/browse)?/(track|album)/\d+'
-    )
-    name = 'Tidal'
-    order = 7
+#     key = 'tidal'
+#     url_re = (
+#         r'https?://(www\.|listen\.)?tidal\.com(/browse)?/(track|album)/\d+'
+#     )
+#     name = 'Tidal'
+#     order = 7
