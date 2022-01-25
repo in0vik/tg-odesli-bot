@@ -39,13 +39,16 @@ class PlatformABC(ABC):
 #     order = 0
 
 
-# class SoundCloudPlatform(PlatformABC):
-#     """SoundCloud platform."""
+class SoundCloudPlatform(PlatformABC):
+    """SoundCloud platform."""
 
-#     key = 'soundcloud'
-#     url_re = r'https?://([a-zA-Z\d-]+\.)*soundcloud\.com/[^\s.,]*'
-#     name = 'SoundCloud'
-#     order = 1
+    key = 'soundcloud'
+    url_re = (
+        r'https?://([a-zA-Z\d-]+\.)*soundcloud\.com/[^\s.,]*'
+        r'https?://([a-zA-Z\d-]+\.)*soundcloud.app.goo.gl/[^\s.,]*'
+    )
+    name = 'SoundCloud'
+    order = 1
 
 
 class YandexMusicPlatform(PlatformABC):
