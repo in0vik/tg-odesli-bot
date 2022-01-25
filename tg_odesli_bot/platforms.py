@@ -59,6 +59,14 @@ class PlatformABC(ABC):
 #     name = 'Yandex Music'
 #     order = 2
 
+class Bandcamp(PlatformABC):
+    """Yandex Music platform."""
+
+    key = 'bandcamp'
+    url_re = (
+        r'https?://([a-zA-Z\d-]+\.)*bandcamp\.(com)/(album|track)/'    )
+    name = 'Bandcamp'
+    order = 2
 
 class SpotifyPlatform(PlatformABC):
     """Spotify platform."""
