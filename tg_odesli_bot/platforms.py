@@ -48,25 +48,25 @@ class PlatformABC(ABC):
 #     order = 1
 
 
-# class YandexMusicPlatform(PlatformABC):
-#     """Yandex Music platform."""
+class YandexMusicPlatform(PlatformABC):
+    """Yandex Music platform."""
 
-#     key = 'yandex'
-#     url_re = (
-#         r'https?://([a-zA-Z\d-]+\.)*music\.yandex\.(com|ru|by)/(album|track)/'
-#         r'[^\s.,]*'
-#     )
-#     name = 'Yandex Music'
-#     order = 2
+    key = 'yandex'
+    url_re = (
+        r'https?://([a-zA-Z\d-]+\.)*music\.yandex\.(com|ru|by)/(album|track)/'
+        r'[^\s.,]*'
+    )
+    name = 'Yandex Music'
+    order = 5
 
 class Bandcamp(PlatformABC):
-    """Yandex Music platform."""
+    """Bandcamp platform."""
 
     key = 'bandcamp'
     url_re = (
         r'https?://([a-zA-Z\d-]+\.)*bandcamp\.(com)/(album|track)/'    )
     name = 'Bandcamp'
-    order = 2
+    order = 4
 
 class SpotifyPlatform(PlatformABC):
     """Spotify platform."""
@@ -77,7 +77,7 @@ class SpotifyPlatform(PlatformABC):
         r'|(tospotify\.com/[^\s.,]*))'
     )
     name = 'Spotify'
-    order = 3
+    order = 1
 
 
 class YouTubeMusicPlatform(PlatformABC):
@@ -89,7 +89,7 @@ class YouTubeMusicPlatform(PlatformABC):
         r'(v|list)=[^\s.,]*)'
     )
     name = 'YouTube Music'
-    order = 4
+    order = 3
 
 
 class YouTubePlatform(PlatformABC):
@@ -100,7 +100,7 @@ class YouTubePlatform(PlatformABC):
         r'(https?://(www\.)?youtube\.com/(watch|playlist)\?(v|list)=[^\s,]*)'
     )
     name = 'YouTube'
-    order = 5
+    order = 2
 
 
 class AppleMusicPlatform(PlatformABC):
