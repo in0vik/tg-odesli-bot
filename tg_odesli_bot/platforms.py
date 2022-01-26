@@ -66,7 +66,7 @@ class Bandcamp(PlatformABC):
 
     key = 'bandcamp'
     url_re = (
-        r'https?://.*bandcamp.*com/album/[^\s,.]*'    
+        r'https?://[^\s.,]*\.bandcamp\.com/album/[^\s.,]*'
         )
     name = 'Bandcamp'
     order = 4
