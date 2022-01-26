@@ -128,18 +128,11 @@ class OdesliBot:
     TG_MAX_RETRIES = None
     #: Welcome message template
     WELCOME_MSG_TEMPLATE = (
-        "I'm an (unofficial) Odesli Bot. You can send me a link to a song on "
-        'any supported music streaming platform and I will reply with links '
-        'from all the other platforms. I work in group chats as well. In a '
-        'group chat I will also try to delete original message so that the '
-        'chat remains tidy (you must promote me to admin to enable this).\n'
+        "Hi! Send me a link to a music on"
+        'and I will reply you with links from all avalable platforms'
+        'Also you can add me in to group chats.'
         '\n'
         '<b>Supported platforms:</b> {supported_platforms}.\n'
-        '\n'
-        'The bot is open source. Your feedback, suggestions and PRs are '
-        'welcome: <a href="https://github.com/9dogs/tg-odesli-bot">GitHub</a>.'
-        '\n'
-        'Powered by a great <a href="https://odesli.co/">Odesli</a> service.'
     )
 
     def __init__(self, config: Optional[Config] = None, *, loop=None):
