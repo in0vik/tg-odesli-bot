@@ -39,15 +39,15 @@ class PlatformABC(ABC):
 #     order = 0
 
 
-# class SoundCloudPlatform(PlatformABC):
-#     """SoundCloud platform."""
+class SoundCloudPlatform(PlatformABC):
+    """SoundCloud platform."""
 
-#     key = 'soundcloud'
-#     url_re = (
-#         r'https?://([a-zA-Z\d-]+\.)*soundcloud\.(com|app\.goo\.gl)/[^\s.,]*'
-#     )
-#     name = 'SoundCloud'
-#     order = 1
+    key = 'soundcloud'
+    url_re = (
+        r'https?://([a-zA-Z\d-]+\.)*soundcloud\.(com|app\.goo\.gl)/[^\s.,]*'
+    )
+    name = 'SoundCloud'
+    order = 6
 
 class SpotifyPlatform(PlatformABC):
     """Spotify platform."""
@@ -103,19 +103,17 @@ class Bandcamp(PlatformABC):
 
 
 
+class YouTubePlatform(PlatformABC):
+    """YouTube platform."""
 
+    key = 'youtube'
+    url_re = (
+        r'https?://([a-zA-Z\d-]+\.)*((youtube\.com/(watch|playlist)\?(v|list)=[^\s,]*)'
+        r'|(youtu\.be/[^\s.,]*))'
 
-# class YouTubePlatform(PlatformABC):
-#     """YouTube platform."""
-
-#     key = 'youtube'
-#     url_re = (
-#         r'https?://([a-zA-Z\d-]+\.)*((youtube\.com/(watch|playlist)\?(v|list)=[^\s,]*)'
-#         r'|(youtu\.be/[^\s.,]*))'
-
-#     )
-#     name = 'YouTube'
-#     order = 2
+    )
+    name = 'YouTube'
+    order = 7
 
 
 # class TidalPlatform(PlatformABC):
