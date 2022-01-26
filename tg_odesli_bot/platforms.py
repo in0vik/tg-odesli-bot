@@ -39,15 +39,15 @@ class PlatformABC(ABC):
 #     order = 0
 
 
-class SoundCloudPlatform(PlatformABC):
-    """SoundCloud platform."""
+# class SoundCloudPlatform(PlatformABC):
+#     """SoundCloud platform."""
 
-    key = 'soundcloud'
-    url_re = (
-        r'https?://([a-zA-Z\d-]+\.)*soundcloud\.(com|app\.goo\.gl)/[^\s.,]*'
-    )
-    name = 'SoundCloud'
-    order = 1
+#     key = 'soundcloud'
+#     url_re = (
+#         r'https?://([a-zA-Z\d-]+\.)*soundcloud\.(com|app\.goo\.gl)/[^\s.,]*'
+#     )
+#     name = 'SoundCloud'
+#     order = 1
 
 
 class YandexMusicPlatform(PlatformABC):
@@ -58,7 +58,7 @@ class YandexMusicPlatform(PlatformABC):
         r'https?://([a-zA-Z\d-]+\.)*music\.yandex\.(com|ru|by)/(album|track)/'
         r'[^\s.,]*'
     )
-    name = 'Yandex Music'
+    name = 'YMusic'
     order = 5
 
 class Bandcamp(PlatformABC):
@@ -91,21 +91,21 @@ class YouTubeMusicPlatform(PlatformABC):
         r'(https?://([a-zA-Z\d-]+\.)*music\.youtube\.com/(watch|playlist)\?'
         r'(v|list)=[^\s.,]*)'
     )
-    name = 'YouTube Music'
+    name = 'YT Music'
     order = 3
 
 
-class YouTubePlatform(PlatformABC):
-    """YouTube platform."""
+# class YouTubePlatform(PlatformABC):
+#     """YouTube platform."""
 
-    key = 'youtube'
-    url_re = (
-        r'https?://([a-zA-Z\d-]+\.)*((youtube\.com/(watch|playlist)\?(v|list)=[^\s,]*)'
-        r'|(youtu\.be/[^\s.,]*))'
+#     key = 'youtube'
+#     url_re = (
+#         r'https?://([a-zA-Z\d-]+\.)*((youtube\.com/(watch|playlist)\?(v|list)=[^\s,]*)'
+#         r'|(youtu\.be/[^\s.,]*))'
 
-    )
-    name = 'YouTube'
-    order = 2
+#     )
+#     name = 'YouTube'
+#     order = 2
 
 
 class AppleMusicPlatform(PlatformABC):

@@ -129,8 +129,9 @@ class OdesliBot:
     #: Welcome message template
     WELCOME_MSG_TEMPLATE = (
         "Hi! Send me a link to the music one "
-        'and I will reply you with links from all avalable platforms. '
-        'You can add me into group chats. \n'
+        'and I will reply you with links from all avalable platforms.'
+        '\n'
+        'Also you can add me into group chats. \n'
         '\n'
         '<b>Supported platforms:</b> {supported_platforms}.\n'
     )
