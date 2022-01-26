@@ -70,6 +70,14 @@ class YouTubeMusicPlatform(PlatformABC):
     )
     name = 'YouTube Music'
     order = 2
+
+class AppleMusicPlatform(PlatformABC):
+    """Apple Music platform."""
+
+    key = 'appleMusic'
+    url_re = r'https?://([a-zA-Z\d-]+\.)*music\.apple\.com/.*?/album/[^\s,.]*'
+    name = 'Apple Music'
+    order = 5
     
 
 class YandexMusicPlatform(PlatformABC):
@@ -97,7 +105,6 @@ class Bandcamp(PlatformABC):
 
 
 
-
 # class YouTubePlatform(PlatformABC):
 #     """YouTube platform."""
 
@@ -109,15 +116,6 @@ class Bandcamp(PlatformABC):
 #     )
 #     name = 'YouTube'
 #     order = 2
-
-
-class AppleMusicPlatform(PlatformABC):
-    """Apple Music platform."""
-
-    key = 'appleMusic'
-    url_re = r'https?://([a-zA-Z\d-]+\.)*music\.apple\.com/.*?/album/[^\s,.]*'
-    name = 'Apple Music'
-    order = 5
 
 
 # class TidalPlatform(PlatformABC):
