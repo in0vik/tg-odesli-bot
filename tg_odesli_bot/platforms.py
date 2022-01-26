@@ -49,28 +49,6 @@ class PlatformABC(ABC):
 #     name = 'SoundCloud'
 #     order = 1
 
-
-class YandexMusicPlatform(PlatformABC):
-    """Yandex Music platform."""
-
-    key = 'yandex'
-    url_re = (
-        r'https?://([a-zA-Z\d-]+\.)*music\.yandex\.(com|ru|by)/(album|track)/'
-        r'[^\s.,]*'
-    )
-    name = 'YMusic'
-    order = 5
-
-class Bandcamp(PlatformABC):
-    """Bandcamp platform."""
-
-    key = 'bandcamp'
-    url_re = (
-        r'https?://[^\s.,]*\.bandcamp\.com/album/[^\s.,]*'
-        )
-    name = 'Bandcamp'
-    order = 4
-
 class SpotifyPlatform(PlatformABC):
     """Spotify platform."""
 
@@ -82,7 +60,6 @@ class SpotifyPlatform(PlatformABC):
     name = 'Spotify'
     order = 1
 
-
 class YouTubeMusicPlatform(PlatformABC):
     """YouTube Music platform."""
 
@@ -91,8 +68,34 @@ class YouTubeMusicPlatform(PlatformABC):
         r'(https?://([a-zA-Z\d-]+\.)*music\.youtube\.com/(watch|playlist)\?'
         r'(v|list)=[^\s.,]*)'
     )
-    name = 'YT Music'
+    name = 'YouTube Music'
+    order = 2
+    
+
+class YandexMusicPlatform(PlatformABC):
+    """Yandex Music platform."""
+
+    key = 'yandex'
+    url_re = (
+        r'https?://([a-zA-Z\d-]+\.)*music\.yandex\.(com|ru|by)/(album|track)/'
+        r'[^\s.,]*'
+    )
+    name = 'Yandex Music'
     order = 3
+
+class Bandcamp(PlatformABC):
+    """Bandcamp platform."""
+
+    key = 'bandcamp'
+    url_re = (
+        r'https?://[^\s.,]*\.bandcamp\.com/album/[^\s.,]*'
+        )
+    name = 'Bandcamp'
+    order = 4
+
+
+
+
 
 
 # class YouTubePlatform(PlatformABC):
@@ -114,7 +117,7 @@ class AppleMusicPlatform(PlatformABC):
     key = 'appleMusic'
     url_re = r'https?://([a-zA-Z\d-]+\.)*music\.apple\.com/.*?/album/[^\s,.]*'
     name = 'Apple Music'
-    order = 6
+    order = 5
 
 
 # class TidalPlatform(PlatformABC):
