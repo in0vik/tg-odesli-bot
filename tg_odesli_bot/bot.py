@@ -128,7 +128,7 @@ class OdesliBot:
     TG_MAX_RETRIES = None
     #: Welcome message template
     WELCOME_MSG_TEMPLATE = (
-        "Hi! Send me a link to the music one "
+        "Hi! Send me a link to the music album, track or playlist "
         'and I will reply you with links from all avalable platforms.'
         '\n'
         'Also you can add me into group chats. \n'
