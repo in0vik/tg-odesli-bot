@@ -91,13 +91,11 @@ class YandexMusicPlatform(PlatformABC):
     name = 'Yandex Music'
     order = 3
 
-class Bandcamp(PlatformABC):
+class BandcampPlatform(PlatformABC):
     """Bandcamp platform."""
 
     key = 'bandcamp'
-    url_re = (
-        r'https?://[^\s.,]*\.bandcamp\.com/album/[^\s.,]*'
-        )
+    url_re = r'https?://[^\s.,]*\.bandcamp\.com/(album|track)/[^\s.,]*'
     name = 'Bandcamp'
     order = 4
 
@@ -108,7 +106,7 @@ class YouTubePlatform(PlatformABC):
 
     key = 'youtube'
     url_re = (
-        r'https?://([a-zA-Z\d-]+\.)*((youtube\.com/(watch|playlist)\?(v|list)=[^\s,]*)'
+        r'https?://(((www\.)?youtube\.com/(watch|playlist)\?(v|list)=[^\s,]*)'
         r'|(youtu\.be/[^\s.,]*))'
 
     )
