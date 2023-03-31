@@ -21,3 +21,4 @@ tg-odesli-bot==0.2.16
 ujson==5.1.0
 urllib3==1.26.8
 yarl==1.7.2
+msgpack==1.0.5
