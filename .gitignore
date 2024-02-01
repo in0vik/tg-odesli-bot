@@ -130,3 +130,5 @@ dmypy.json
 
 # JUnit
 junit.xml
+
+.history

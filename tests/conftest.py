@@ -2,18 +2,16 @@
 import json
 import re
 import string
-from functools import partial
 from http import HTTPStatus
 from pathlib import Path
-from typing import Union
 from unittest import mock
+from unittest.mock import Mock
 
-import dotenv
 from aioresponses import aioresponses
 from pytest import fixture
 
 from tg_odesli_bot.bot import OdesliBot
-from tg_odesli_bot.config import TestConfig
+from tg_odesli_bot.settings import TestSettings
 
 #: Tests base dir
 BASE_DIR = Path(__file__).resolve().parent
@@ -70,6 +68,12 @@ TEST_RESPONSE_TEMPLATE = {
             'artistName': 'Test Artist ${id}',
             'apiProvider': 'yandex',
         },
+        'BANDCAMP_SONG::B${id}': {
+            'id': '${id}',
+            'title': 'Test Title ${id}',
+            'artistName': 'Test Artist ${id}',
+            'apiProvider': 'bandcamp',
+        },
     },
     'linksByPlatform': {
         'deezer': {
@@ -77,7 +81,7 @@ TEST_RESPONSE_TEMPLATE = {
             'entityUniqueId': 'DEEZER_SONG::D${id}',
         },
         'appleMusic': {
-            'url': 'https://www.test.com/am',
+            'url': 'https://geo.www.test.com/am',
             'entityUniqueId': 'ITUNES_SONG::AM${id}',
         },
         'spotify': {
@@ -120,41 +124,70 @@ TEST_RESPONSE_TEMPLATE = {
             'url': 'https://www.test.com/sc',
             'entityUniqueId': 'SOUNDCLOUD_SONG::SC${id}',
         },
+        'bandcamp': {
+            'url': 'https://www.test.com/b',
+            'entityUniqueId': 'BANDCAMP_SONG::B${id}',
+        },
     },
+}
+#: Odesli API test response template with one URL
+TEST_RESPONSE_WITH_ONE_URL_TEMPLATE = {
+    'entityUniqueId': 'DEEZER_SONG::D${id}',
+    'userCountry': 'US',
+    'entitiesByUniqueId': {
+        'DEEZER_SONG::D${id}': {
+            'id': 'D${id}',
+            'title': 'Test Title ${id}',
+            'apiProvider': 'deezer',
+            'thumbnailUrl': 'http://thumb1',
+        },
+    },
+    'linksByPlatform': {
+        'deezer': {
+            'url': 'https://www.test.com/d',
+            'entityUniqueId': 'DEEZER_SONG::D${id}',
+        },
+    },
+}
+#: Mock Spotify search response
+MOCK_SPOTIFY_SEARCH_RESPONSE = {
+    'tracks': {
+        'items': [
+            {
+                'id': 'test_id',
+                'name': 'test_name',
+                'artists': [{'name': 'test_artist'}],
+                'album': {'images': [{'url': 'http://thumb1'}]},
+                'external_urls': {'spotify': 'test_url'},
+            }
+        ]
+    }
 }
 
 
-def make_response(song_id: Union[str, int] = 1) -> dict:
+def make_response(
+    song_id: str | int = 1, template: dict = TEST_RESPONSE_TEMPLATE
+) -> dict:
     """Prepare Odesli API test response with given song id.
 
     :param song_id: substitution for a song identifier
-    :return: response dict
+    :param template: response template
+    :returns: response dict
     """
-    response_template = string.Template(json.dumps(TEST_RESPONSE_TEMPLATE))
+    response_template = string.Template(json.dumps(template))
     response = response_template.substitute(id=str(song_id))
     payload = json.loads(response)
+    # Bandcamp song IDs are integers
+    _key = f'BANDCAMP_SONG::B{song_id}'
+    if _key in payload['entitiesByUniqueId']:
+        payload['entitiesByUniqueId'][_key]['id'] = int(song_id)
     return payload
-
-
-@fixture
-def test_dotenv():
-    """Load test .env file."""
-    load_test_dotenv = partial(
-        dotenv.load_dotenv,
-        dotenv_path=BASE_DIR / 'test_env',
-        verbose=True,
-        override=True,
-    )
-    with mock.patch(
-        'tg_odesli_bot.config.dotenv.load_dotenv', load_test_dotenv
-    ):
-        yield
 
 
 @fixture
 def test_config():
     """Test config fixture."""
-    config = TestConfig.load()
+    config = TestSettings.load()
     return config
 
 
@@ -168,6 +201,8 @@ async def bot(test_config):
     with mock.patch('aiogram.bot.api.check_token', mock_check_token):
         bot = OdesliBot(config=test_config)
         await bot.init()
+        bot.sp = Mock()
+        bot.sp.search.return_value = MOCK_SPOTIFY_SEARCH_RESPONSE
         yield bot
     await bot.stop()
 

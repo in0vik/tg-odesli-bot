@@ -1,5 +1,6 @@
 """Integration tests for Odesli bot."""
 import asyncio
+import re
 from http import HTTPStatus
 from unittest import mock
 
@@ -17,7 +18,7 @@ from aiohttp import ClientConnectionError
 from aioresponses import aioresponses
 from pytest import mark
 
-from tests.conftest import make_response
+from tests.conftest import TEST_RESPONSE_WITH_ONE_URL_TEMPLATE, make_response
 from tg_odesli_bot.bot import SongInfo
 
 
@@ -35,7 +36,7 @@ def make_mock_message(
     :param raise_on_delete: raise exception on message delete
     :param inline: message is an inline query
     :param is_reply: message is a reply
-    :return: mock message
+    :returns: mock message
     """
     spec = InlineQuery if inline else Message
     message = mock.Mock(spec=spec)
@@ -78,7 +79,7 @@ def make_mock_message(
     return message
 
 
-@mark.usefixtures('loop')
+@mark.usefixtures('event_loop')
 class TestOdesliBot:
     """Integration tests for Odesli bot."""
 
@@ -89,7 +90,7 @@ class TestOdesliBot:
         """
         supported_platforms = (
             'Deezer | SoundCloud | Yandex Music | Spotify | YouTube Music '
-            '| YouTube | Apple Music | Tidal'
+            '| YouTube | Apple Music | Tidal | Bandcamp'
         )
         message = make_mock_message(text=text)
         reply_text = bot.WELCOME_MSG_TEMPLATE.format(
@@ -115,12 +116,32 @@ class TestOdesliBot:
             '<a href="https://www.test.com/ym">YouTube Music</a> | '
             '<a href="https://www.test.com/y">YouTube</a> | '
             '<a href="https://www.test.com/am">Apple Music</a> | '
-            '<a href="https://www.test.com/t">Tidal</a>'
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>'
         )
         await bot.dispatcher.message_handlers.notify(message)
         assert message.reply.called
         assert message.delete.called
         assert message.reply.called_with_text == reply_text
+
+    async def test_does_not_reply_to_group_message_if_found_on_one_platform(
+        self, bot, test_config
+    ):
+        """Don't send a reply if only one platform is found for the given
+        URL.
+        """
+        message = make_mock_message(
+            text='check this one: https://www.deezer.com/track/1'
+        )
+        pattern = re.compile(rf'^{re.escape(test_config.ODESLI_API_URL)}.*$')
+        payload = make_response(
+            song_id=1, template=TEST_RESPONSE_WITH_ONE_URL_TEMPLATE
+        )
+        with aioresponses() as m:
+            m.get(pattern, status=HTTPStatus.OK, payload=payload)
+            await bot.dispatcher.message_handlers.notify(message)
+        assert not message.reply.called
+        assert not message.delete.called
 
     async def test_skips_youtube_platform_for_group_messages(
         self, bot, odesli_api
@@ -146,7 +167,8 @@ class TestOdesliBot:
             '<a href="https://www.test.com/ym">YouTube Music</a> | '
             '<a href="https://www.test.com/y">YouTube</a> | '
             '<a href="https://www.test.com/am">Apple Music</a> | '
-            '<a href="https://www.test.com/t">Tidal</a>'
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>'
         )
         await bot.dispatcher.message_handlers.notify(message)
         assert message.reply.called
@@ -174,7 +196,8 @@ class TestOdesliBot:
             '<a href="https://www.test.com/ym">YouTube Music</a> | '
             '<a href="https://www.test.com/y">YouTube</a> | '
             '<a href="https://www.test.com/am">Apple Music</a> | '
-            '<a href="https://www.test.com/t">Tidal</a>'
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>'
         )
 
         async def mock_answer_inline_query(inline_query_id, results):
@@ -187,7 +210,7 @@ class TestOdesliBot:
             assert result.thumb_url == 'http://thumb1'
             assert result.description == (
                 'Deezer | SoundCloud | Yandex Music | Spotify | YouTube Music '
-                '| YouTube | Apple Music | Tidal'
+                '| YouTube | Apple Music | Tidal | Bandcamp'
             )
 
         monkeypatch.setattr(
@@ -211,7 +234,8 @@ class TestOdesliBot:
             '<a href="https://www.test.com/ym">YouTube Music</a> | '
             '<a href="https://www.test.com/y">YouTube</a> | '
             '<a href="https://www.test.com/am">Apple Music</a> | '
-            '<a href="https://www.test.com/t">Tidal</a>'
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>'
         )
 
         async def mock_answer_inline_query(inline_query_id, results):
@@ -224,7 +248,7 @@ class TestOdesliBot:
             assert result.thumb_url == 'http://thumb1'
             assert result.description == (
                 'Deezer | SoundCloud | Yandex Music | Spotify | YouTube Music '
-                '| YouTube | Apple Music | Tidal'
+                '| YouTube | Apple Music | Tidal | Bandcamp'
             )
 
         monkeypatch.setattr(
@@ -259,17 +283,17 @@ class TestOdesliBot:
             '<a href="https://www.test.com/ym">YouTube Music</a> | '
             '<a href="https://www.test.com/y">YouTube</a> | '
             '<a href="https://www.test.com/am">Apple Music</a> | '
-            '<a href="https://www.test.com/t">Tidal</a>'
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>'
         )
         await bot.dispatcher.message_handlers.notify(message)
         assert message.reply.called_with_text == reply_text
 
-    @mark.parametrize('query', ['not a URL', ''])
-    async def test_not_replies_to_inline_query_if_no_url(
-        self, bot, odesli_api, monkeypatch, query
+    async def test_not_replies_to_inline_query_if_empty_query(
+        self, bot, odesli_api, monkeypatch
     ):
-        """Do not reply to an inline query if not URL in query."""
-        inline_query = make_mock_message(query, inline=True)
+        """Do not reply to an inline query if it's empty."""
+        inline_query = make_mock_message('', inline=True)
 
         async def mock_answer_inline_query(inline_query_id, results):
             """Mock an inline query answer."""
@@ -278,6 +302,40 @@ class TestOdesliBot:
         monkeypatch.setattr(
             bot.bot, 'answer_inline_query', mock_answer_inline_query
         )
+        await bot.dispatcher.inline_query_handlers.notify(inline_query)
+
+    async def test_search_for_song_for_inline_query(
+        self, bot, odesli_api, monkeypatch
+    ):
+        """Search for a song if inline query is not empty."""
+        inline_query = make_mock_message('title', inline=True)
+        reply_text = (
+            'Test Artist 1 - Test Title 1\n'
+            '<a href="https://www.test.com/d">Deezer</a> | '
+            '<a href="https://www.test.com/sc">SoundCloud</a> | '
+            '<a href="https://www.test.com/yn">Yandex Music</a> | '
+            '<a href="https://www.test.com/s">Spotify</a> | '
+            '<a href="https://www.test.com/ym">YouTube Music</a> | '
+            '<a href="https://www.test.com/y">YouTube</a> | '
+            '<a href="https://www.test.com/am">Apple Music</a> | '
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>'
+        )
+
+        async def mock_answer_inline_query(inline_query_id, results):
+            """Mock an inline query answer."""
+            assert len(results) == 1
+            result = results[0]
+            assert result.title == 'Test Title 1'
+            assert result.description == 'Test Artist 1'
+            assert result.input_message_content.message_text == reply_text
+            assert result.input_message_content.parse_mode == 'HTML'
+            assert result.thumb_url == 'http://thumb1'
+
+        monkeypatch.setattr(
+            bot.bot, 'answer_inline_query', mock_answer_inline_query
+        )
+
         await bot.dispatcher.inline_query_handlers.notify(inline_query)
 
     @mark.parametrize(
@@ -346,7 +404,7 @@ class TestOdesliBot:
             title='Cached',
             artist='Cached',
             thumbnail_url='cached',
-            urls={'soundcloud': 'test'},
+            urls={'soundcloud': 'test1', 'deezer': 'test2'},
             urls_in_text={url},
         )
         await bot.cache.set(url, song_info)
@@ -355,7 +413,7 @@ class TestOdesliBot:
             '<b>@test_user wrote:</b> check this one: [1]\n'
             '\n'
             '1. Cached - Cached\n'
-            '<a href="test">soundcloud</a>'
+            '<a href="test1">SoundCloud</a> | <a href="test2">Deezer</a>'
         )
         await bot.dispatcher.message_handlers.notify(message)
         assert 'Returning data from cache' in caplog.text
@@ -387,15 +445,16 @@ class TestOdesliBot:
             '<a href="https://www.test.com/ym">YouTube Music</a> | '
             '<a href="https://www.test.com/y">YouTube</a> | '
             '<a href="https://www.test.com/am">Apple Music</a> | '
-            '<a href="https://www.test.com/t">Tidal</a>'
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>'
         )
         await bot.dispatcher.message_handlers.notify(message)
         assert message.reply.called
         assert message.reply.called_with_text == reply_text
 
     async def test_replies_to_private_for_single_url(self, bot, odesli_api):
-        """Send a reply to a private message without an index number if incoming
-        message consists only of one URL.
+        """Send a reply to a private message without an index number if
+        incoming message consists only of one URL.
         """
         message = make_mock_message(
             text='https://www.deezer.com/track/1', chat_type=ChatType.PRIVATE
@@ -409,7 +468,8 @@ class TestOdesliBot:
             '<a href="https://www.test.com/ym">YouTube Music</a> | '
             '<a href="https://www.test.com/y">YouTube</a> | '
             '<a href="https://www.test.com/am">Apple Music</a> | '
-            '<a href="https://www.test.com/t">Tidal</a>'
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>'
         )
         await bot.dispatcher.message_handlers.notify(message)
         assert message.reply.called
@@ -433,7 +493,8 @@ class TestOdesliBot:
             '<a href="https://www.test.com/ym">YouTube Music</a> | '
             '<a href="https://www.test.com/y">YouTube</a> | '
             '<a href="https://www.test.com/am">Apple Music</a> | '
-            '<a href="https://www.test.com/t">Tidal</a>'
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>'
         )
         api_url = f'{bot.config.ODESLI_API_URL}?url={url}'
         payload = make_response(song_id=1)
@@ -446,8 +507,8 @@ class TestOdesliBot:
             assert message.reply.called_with_text == reply_text
 
     async def test_replies_to_private_message_if_only_urls(self, bot):
-        """Send a reply to a private message without text if message consists of
-        song URLs only.
+        """Send a reply to a private message without text if message consists
+        of song URLs only.
         """
         url1 = 'https://www.deezer.com/track/1'
         url2 = 'https://soundcloud.com/2'
@@ -463,7 +524,8 @@ class TestOdesliBot:
             '<a href="https://www.test.com/ym">YouTube Music</a> | '
             '<a href="https://www.test.com/y">YouTube</a> | '
             '<a href="https://www.test.com/am">Apple Music</a> | '
-            '<a href="https://www.test.com/t">Tidal</a>\n'
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>\n'
             '2. Test Artist 2 - Test Title 2\n'
             '<a href="https://www.test.com/d">Deezer</a> | '
             '<a href="https://www.test.com/sc">SoundCloud</a> | '
@@ -472,7 +534,8 @@ class TestOdesliBot:
             '<a href="https://www.test.com/ym">YouTube Music</a> | '
             '<a href="https://www.test.com/y">YouTube</a> | '
             '<a href="https://www.test.com/am">Apple Music</a> | '
-            '<a href="https://www.test.com/t">Tidal</a>'
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>'
         )
         api_url1 = f'{bot.config.ODESLI_API_URL}?url={url1}'
         api_url2 = f'{bot.config.ODESLI_API_URL}?url={url2}'
@@ -486,8 +549,8 @@ class TestOdesliBot:
             assert message.reply.called_with_text == reply_text
 
     async def test_replies_to_private_message_for_single_url(self, bot):
-        """Send a reply to a private message without an index number if incoming
-        message consists only of one URL.
+        """Send a reply to a private message without an index number if
+        incoming message consists only of one URL.
         """
         url = 'https://www.deezer.com/track/1'
         message = make_mock_message(text=url, chat_type=ChatType.PRIVATE)
@@ -500,7 +563,8 @@ class TestOdesliBot:
             '<a href="https://www.test.com/ym">YouTube Music</a> | '
             '<a href="https://www.test.com/y">YouTube</a> | '
             '<a href="https://www.test.com/am">Apple Music</a> | '
-            '<a href="https://www.test.com/t">Tidal</a>'
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>'
         )
         api_url = f'{bot.config.ODESLI_API_URL}?url={url}'
         payload = make_response(song_id=1)
@@ -546,7 +610,8 @@ class TestOdesliBot:
             '<a href="https://www.test.com/ym">YouTube Music</a> | '
             '<a href="https://www.test.com/y">YouTube</a> | '
             '<a href="https://www.test.com/am">Apple Music</a> | '
-            '<a href="https://www.test.com/t">Tidal</a>'
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>'
         )
         api_url1 = f'{bot.config.ODESLI_API_URL}?url={url1}'
         api_url2 = f'{bot.config.ODESLI_API_URL}?url={url2}'
@@ -580,7 +645,8 @@ class TestOdesliBot:
             '<a href="https://www.test.com/ym">YouTube Music</a> | '
             '<a href="https://www.test.com/y">YouTube</a> | '
             '<a href="https://www.test.com/am">Apple Music</a> | '
-            '<a href="https://www.test.com/t">Tidal</a>'
+            '<a href="https://www.test.com/t">Tidal</a> | '
+            '<a href="https://www.test.com/b">Bandcamp</a>'
         )
         url1 = f'{bot.config.ODESLI_API_URL}?url=https://deezer.com/track/1'
         url2 = f'{bot.config.ODESLI_API_URL}?url=https://deezer.com/track/2'
